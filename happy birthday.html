@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>3D Balloon Text — Happy Birthday</title>
+  <style>
+    :root{n
+      --bg:#f6f5f4;
+      --balloon:#a0207a; /* change to any color */
+    }
+
+    html,body
+    {
+      height:100%;
+      margin:0;
+      font-family: "Segoe UI", Roboto, system-ui, Arial, sans-serif;
+      background: linear-gradient(180deg, #fbfbfb 0%, var(--bg) 100%);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+
+    .stage{
+      text-align:center;
+      padding:40px;
+      width:100%;
+    }
+
+    .line{
+      display:block;
+      margin: 6px 0;
+      transform: perspective(800px) rotateX(6deg);
+    }
+
+    .balloon-text{
+      display:inline-block;
+      font-weight:900;
+      letter-spacing: 6px;
+      font-size: 12vmin; /* responsive size */
+      line-height:0.9;
+      color: white;
+      position:relative;
+      padding: 0 6px;
+      -webkit-text-stroke: 1px rgba(0,0,0,0.12);
+      text-transform: uppercase;
+      /* glossy gradient fill */
+      background: linear-gradient(180deg,
+                rgba(255,255,255,0.95) 0%,
+                rgba(255,255,255,0.35) 10%,
+                rgba(255,255,255,0.06) 30%,
+                rgba(0,0,0,0.12) 100%),
+              linear-gradient(180deg, #ff9ad9 0%, var(--balloon) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      /* depth shadows (layered) to simulate thickness) */
+      text-shadow:
+        0 1px 0 rgba(255,255,255,0.6),
+        0 6px 0 rgba(0,0,0,0.06),
+        0 12px 0 rgba(0,0,0,0.05),
+        0 18px 20px rgba(0,0,0,0.18);
+      /* make letters look inflated by using an inner glow with pseudo */
+    }
+
+    /* pseudo-element for extra glossy highlight and rim */
+    .balloon-text::before{
+      content: attr(data-text);
+      position:absolute;
+      left:0;
+      top:0;
+      width:100%;
+      height:100%;
+      z-index:-1;
+      transform: translateY(3px) scaleY(0.98);
+      filter: blur(.6px);
+      opacity:0.9;
+      /* subtle darker rim */
+      background: linear-gradient(180deg, rgba(0,0,0,0.06), rgba(0,0,0,0.14));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* small shiny streak using another pseudo-element */
+    .balloon-text::after{
+      content: "";
+      position:absolute;
+      left:16%;
+      top:8%;
+      width:12%;
+      height:40%;
+      border-radius:30px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.25));
+      transform: rotate(-18deg);
+      mix-blend-mode: screen;
+      opacity:0.9;
+      pointer-events:none;
+      filter: blur(0.3px);
+    }
+
+    /* confetti container */
+    .confetti {
+      position: fixed;
+      left:0; right:0; top:0; bottom:0;
+      pointer-events:none;
+      overflow:visible;
+      z-index: 5;
+    }
+
+    .confetti-piece{
+      position:absolute;
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      opacity:0.95;
+      will-change: transform;
+      animation: fall linear forwards;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0.9;
+      }
+    }
+
+    /* small caption */
+    .caption{
+      margin-top:18px;
+      font-size: 3.2vmin;
+      color: #222;
+      opacity:0.9;
+      font-weight:600;
+      letter-spacing:1px;
+    }
+
+    @media (max-width:600px){
+      .balloon-text { font-size:18vmin; letter-spacing:4px; }
+      .caption{ font-size:4vmin; }
+    }
+  </style>
+</head>
+<body>
+    
+  <div class="stage">
+    <div class="line">
+      <span class="balloon-text" data-text="HAPPY">HAPPY</span>
+    </div>
+    <div class="line">
+      <span class="balloon-text" data-text="BIRTHDAY">BIRTHDAY</span>
+    </div>
+    <div class="caption">Have a wonderful day!</div>
+  </div>
+
+  <div class="confetti" id="confetti"></div>
+   <p><a href="LINK.html">CLICK HERE</a></p>
+
+  <script>
+    // small confetti generator (vanilla JS)
+    const confettiRoot = document.getElementById('confetti');
+    const colors = ['#f94144','#f3722c','#f9844a','#f9c74f','#90be6d','#43aa8b','#577590','#9b5de5','#ff006e'];
+
+    function spawnConfettiPiece(){
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      const size = Math.random()*12 + 6;
+      el.style.width = size + 'px';
+      el.style.height = size + 'px';
+      el.style.left = (Math.random()*110 - 5) + 'vw';
+      el.style.top = (-10 + Math.random()*10) + 'vh';
+      el.style.background = colors[Math.floor(Math.random()*colors.length)];
+      const dur = Math.random()*2 + 3.5; // 3.5s - 5.5s
+      el.style.animationDuration = dur + 's';
+      el.style.transform = rotate(${Math.random()*360}deg);
+      el.style.opacity = (0.85 + Math.random()*0.15);
+      confettiRoot.appendChild(el);
+      // remove after animation
+      setTimeout(()=> el.remove(), (dur+0.2)*1000);
+    }
+
+    // spawn many confetti in bursts
+    function confettiBurst(count=40){
+      for(let i=0;i<count;i++){
+        setTimeout(spawnConfettiPiece, i*40 + Math.random()*200);
+      }
+    }
+
+    // regular gentle bursts
+    confettiBurst(60);
+    setInterval(()=> confettiBurst(28), 3500);
+
+    // optional: click to burst more
+    document.addEventListener('click',()=> confettiBurst(40));
+  </script>
+</body>
+</html>
